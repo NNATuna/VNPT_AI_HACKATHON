@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+}
+
+enum SessionSource {
+  CHAT
+  VOICE
+}
+
+enum ReportStatus {
+  SENT
+  FAILED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  mssv         String   @unique
+  fullName     String
+  dateOfBirth  DateTime
+  email        String   @unique
+  parentEmail  String
+  advisorCode  String
+  role         Role
+  className    String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions SessionLog[]
+  summaries DailyEmotionSummary[]
+  reports  ParentReport[]
+}
+
+model SessionLog {
+  id            String        @id @default(uuid())
+  userId        String
+  timestamp     DateTime      @default(now())
+  source        SessionSource
+  userMessage   String?
+  botReply      String?
+  sentimentScore Float
+  emotionLabel  String
+  faceEmotion   String?
+  meta          Json?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model DailyEmotionSummary {
+  id               String   @id @default(uuid())
+  userId           String
+  date             DateTime
+  avgEmotionScore  Float
+  positiveRatio    Float
+  negativeRatio    Float
+  stressAlertCount Int
+  alertLevel       String
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ParentReport {
+  id           String   @id @default(uuid())
+  userId       String
+  fromDate     DateTime
+  toDate       DateTime
+  sentAt       DateTime @default(now())
+  contentSummary String
+  emailStatus  ReportStatus
+
+  user User @relation(fields: [userId], references: [id])
+}
