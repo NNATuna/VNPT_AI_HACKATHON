@@ -20,7 +20,7 @@ type FormState = {
 export default function SignupPage() {
   const params = useSearchParams();
   const router = useRouter();
-  const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
+  const [role, setRole] = useState<"STUDENT" | "TEACHER" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [forms, setForms] = useState<{ STUDENT: FormState; TEACHER: FormState }>(
     () => ({
@@ -54,23 +54,29 @@ export default function SignupPage() {
   useEffect(() => {
     const paramRole = (params.get("role") as any) || (localStorage.getItem("role") as any);
     if (paramRole === "TEACHER") setRole("TEACHER");
-  }, [params]);
+    else if (paramRole === "STUDENT") setRole("STUDENT");
+    else router.replace("/");
+  }, [params, router]);
 
-  const form = forms[role];
+  const form = role ? forms[role] : forms.STUDENT;
 
   function updateField(key: keyof FormState, value: string) {
-    setForms((prev) => ({
-      ...prev,
-      [role]: {
-        ...prev[role],
-        [key]: value,
-      },
-    }));
+    setForms((prev) => {
+      if (!role) return prev;
+      return {
+        ...prev,
+        [role]: {
+          ...prev[role],
+          [key]: value,
+        },
+      };
+    });
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!role) return;
     if (form.password !== form.confirmPassword) {
       setError("Mật khẩu không khớp");
       return;
@@ -91,6 +97,8 @@ export default function SignupPage() {
     router.push(`/login?role=${role}`);
   }
 
+  if (!role) return null;
+
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
       <div className="glass-card rounded-2xl p-8 max-w-3xl w-full">
@@ -98,10 +106,7 @@ export default function SignupPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-neon-cyan">Đăng ký {role === "STUDENT" ? "Học sinh" : "Giáo viên"}</p>
             <h1 className="text-2xl font-bold text-glow">Tạo tài khoản</h1>
-          </div>
-          <div className="flex gap-2 text-xs text-slate-400">
-            <button className={`px-2 py-1 rounded ${role === "STUDENT" ? "bg-slate-800" : ""}`} onClick={() => setRole("STUDENT")}>Học sinh</button>
-            <button className={`px-2 py-1 rounded ${role === "TEACHER" ? "bg-slate-800" : ""}`} onClick={() => setRole("TEACHER")}>Giáo viên</button>
+            <p className="text-[11px] text-slate-500 mt-1">Vai trò cố định từ màn hình chọn ban đầu. Quay lại trang chủ để đổi.</p>
           </div>
         </div>
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={onSubmit}>

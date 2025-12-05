@@ -11,12 +11,14 @@ const roles = [
     title: "Tôi là Học sinh",
     desc: "Chat với robot AI, phân tích cảm xúc đa modal và gửi báo cáo cho phụ huynh.",
     href: "/login?role=STUDENT",
+    signup: "/signup?role=STUDENT",
   },
   {
     key: "TEACHER",
     title: "Tôi là Giáo viên",
     desc: "Xem dashboard cảm xúc của lớp, tải báo cáo và theo dõi cảnh báo.",
     href: "/login?role=TEACHER",
+    signup: "/signup?role=TEACHER",
   },
 ];
 
@@ -40,24 +42,43 @@ export default function RoleSelectionPage() {
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           {roles.map((role) => (
-            <button
+            <div
               key={role.key}
-              onClick={() => {
-                localStorage.setItem("role", role.key);
-                router.push(role.href);
-              }}
-              className="glass-card rounded-2xl p-6 text-left border border-purple-700/50 hover:border-neon-cyan shadow-glow transition"
+              className="glass-card rounded-2xl p-6 text-left border border-purple-700/50 hover:border-neon-cyan shadow-glow transition space-y-4"
             >
-              <div className="flex items-center gap-3 text-neon-cyan mb-2">
+              <div className="flex items-center gap-3 text-neon-cyan">
                 <Rocket size={18} />
                 <span className="text-xs uppercase tracking-[0.2em]">{role.key}</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{role.title}</h3>
-              <p className="text-slate-300 text-sm">{role.desc}</p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-neon-cyan">
-                <Sparkles size={16} /> Bắt đầu ngay
+              <div>
+                <h3 className="text-xl font-semibold mb-1">{role.title}</h3>
+                <p className="text-slate-300 text-sm">{role.desc}</p>
               </div>
-            </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    localStorage.setItem("role", role.key);
+                    router.push(role.href);
+                  }}
+                  className="btn-primary flex-1 justify-center"
+                >
+                  <div className="flex items-center gap-2 justify-center text-sm">
+                    <Sparkles size={16} /> Đăng nhập
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem("role", role.key);
+                    router.push(role.signup);
+                  }}
+                  className="btn-secondary flex-1 justify-center"
+                >
+                  <div className="flex items-center gap-2 justify-center text-sm">
+                    <Sparkles size={16} /> Đăng ký
+                  </div>
+                </button>
+              </div>
+            </div>
           ))}
         </div>
         <div className="glass-card rounded-2xl p-6 border border-slate-800 text-sm text-slate-300">
