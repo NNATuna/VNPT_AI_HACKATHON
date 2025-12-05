@@ -3,16 +3,25 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-const schema = z.object({
-  mssv: z.string().min(3),
-  fullName: z.string().min(3),
-  dateOfBirth: z.string(),
-  email: z.string().email(),
-  advisorCode: z.string(),
-  parentEmail: z.string().email(),
-  role: z.enum(["STUDENT", "TEACHER"]),
-  password: z.string().min(6),
-});
+const schema = z
+  .object({
+    mssv: z.string().min(3),
+    fullName: z.string().min(3),
+    dateOfBirth: z.string(),
+    email: z.string().email(),
+    parentEmail: z.string().email().optional(),
+    advisorCode: z.string().optional(),
+    department: z.string().optional(),
+    className: z.string().optional(),
+    role: z.enum(["STUDENT", "TEACHER"]),
+    password: z.string().min(6),
+  })
+  .superRefine((val, ctx) => {
+    if (val.role === "STUDENT") {
+      if (!val.parentEmail) ctx.addIssue({ code: "custom", message: "Thiếu email phụ huynh" });
+      if (!val.advisorCode) ctx.addIssue({ code: "custom", message: "Thiếu mã cố vấn" });
+    }
+  });
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -34,6 +43,8 @@ export async function POST(request: Request) {
       email: data.email,
       parentEmail: data.parentEmail,
       advisorCode: data.advisorCode,
+      department: data.department,
+      className: data.className,
       role: data.role,
       passwordHash,
     },

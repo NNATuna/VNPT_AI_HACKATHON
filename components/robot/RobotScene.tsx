@@ -1,8 +1,8 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stage } from "@react-three/drei";
 import { Suspense } from "react";
+import { Environment } from "@react-three/drei";
 
 function RobotBody({ expression }: { expression: string }) {
   const colors: Record<string, string> = {
@@ -41,13 +41,13 @@ function RobotBody({ expression }: { expression: string }) {
 
 export function RobotScene({ expression }: { expression: string }) {
   return (
-    <Canvas camera={{ position: [2.5, 2.5, 4] }} style={{ height: "360px" }}>
+    <Canvas camera={{ position: [2.2, 2.5, 4], fov: 60 }} style={{ height: "100%", minHeight: "420px" }}>
       <color attach="background" args={["#0b1120"]} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[2, 4, 5]} intensity={1} />
       <Suspense fallback={null}>
-        <Stage environment="city" intensity={0.7}>
-          <RobotBody expression={expression} />
-        </Stage>
-        <OrbitControls enablePan={false} />
+        <RobotBody expression={expression} />
+        <Environment preset="city" />
       </Suspense>
     </Canvas>
   );
