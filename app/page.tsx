@@ -1,75 +1,83 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { RobotScene } from "@/components/robot/RobotScene";
-import { ChatPopup } from "@/components/ChatPopup";
-import { FloatingMenu } from "@/components/FloatingMenu";
-import { WebcamEmotionPanel } from "@/components/WebcamEmotionPanel";
-import { GradientCard } from "@/components/ui/gradient-card";
-import { Activity, Sparkles, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Rocket, Users, Sparkles } from "lucide-react";
+import Link from "next/link";
 
-export default function HomePage() {
-  const [emotion, setEmotion] = useState("neutral");
-  const [role, setRole] = useState<"STUDENT" | "TEACHER" | null>(null);
+const roles = [
+  {
+    key: "STUDENT",
+    title: "Tôi là Học sinh",
+    desc: "Chat với robot AI, phân tích cảm xúc đa modal và gửi báo cáo cho phụ huynh.",
+    href: "/login?role=STUDENT",
+  },
+  {
+    key: "TEACHER",
+    title: "Tôi là Giáo viên",
+    desc: "Xem dashboard cảm xúc của lớp, tải báo cáo và theo dõi cảnh báo.",
+    href: "/login?role=TEACHER",
+  },
+];
+
+export default function RoleSelectionPage() {
+  const router = useRouter();
 
   useEffect(() => {
-    setRole((localStorage.getItem("role") as any) || "STUDENT");
+    const saved = localStorage.getItem("role");
+    if (saved === "STUDENT") return;
   }, []);
 
   return (
-    <main className="min-h-screen">
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          <div className="flex-1">
-            <GradientCard className="flex flex-col lg:flex-row items-center gap-6">
-              <div className="flex-1 space-y-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-neon-cyan">VNPT AI Hackathon</p>
-                <h1 className="text-3xl font-bold leading-tight">
-                  Nền tảng AI hỗ trợ tâm lý & giám sát cảm xúc học sinh
-                </h1>
-                <p className="text-slate-300">
-                  Chatbot/voice AI, phân tích cảm xúc đa modal và báo cáo tự động cho phụ huynh - giáo viên.
-                </p>
-                <div className="flex gap-3 text-sm text-slate-300">
-                  <span className="flex items-center gap-2"><Sparkles size={16} /> Chatbot & STT/TTS (mock)</span>
-                  <span className="flex items-center gap-2"><Activity size={16} /> Vision cảm xúc</span>
-                  <span className="flex items-center gap-2"><Heart size={16} /> Báo cáo phụ huynh</span>
-                </div>
-                <div className="mt-4">
-                  <p className="text-sm text-slate-400">Robot cảm nhận bạn đang:</p>
-                  <p className="text-xl font-semibold text-neon-cyan">{emotion}</p>
-                </div>
+    <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-6xl w-full space-y-8">
+        <div className="text-center space-y-3">
+          <p className="text-xs uppercase tracking-[0.2em] text-neon-cyan">VNPT AI Hackathon</p>
+          <h1 className="text-3xl md:text-4xl font-bold">Chọn vai trò của bạn</h1>
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Nền tảng AI hỗ trợ tâm lý – giám sát cảm xúc học sinh bằng chatbot, vision và báo cáo tự động.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {roles.map((role) => (
+            <button
+              key={role.key}
+              onClick={() => {
+                localStorage.setItem("role", role.key);
+                router.push(role.href);
+              }}
+              className="glass-card rounded-2xl p-6 text-left border border-purple-700/50 hover:border-neon-cyan shadow-glow transition"
+            >
+              <div className="flex items-center gap-3 text-neon-cyan mb-2">
+                <Rocket size={18} />
+                <span className="text-xs uppercase tracking-[0.2em]">{role.key}</span>
               </div>
-              <div className="flex-1 w-full">
-                <RobotScene expression={emotion} />
+              <h3 className="text-xl font-semibold mb-2">{role.title}</h3>
+              <p className="text-slate-300 text-sm">{role.desc}</p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-neon-cyan">
+                <Sparkles size={16} /> Bắt đầu ngay
               </div>
-            </GradientCard>
-            <div className="mt-4">
-              <WebcamEmotionPanel onEmotion={(e) => setEmotion(e)} />
-            </div>
+            </button>
+          ))}
+        </div>
+        <div className="glass-card rounded-2xl p-6 border border-slate-800 text-sm text-slate-300">
+          <div className="flex items-center gap-2 mb-2">
+            <Users size={18} />
+            <p className="font-semibold">Flow Auth</p>
           </div>
-          <div className="w-full lg:w-96 space-y-4">
-            <GradientCard>
-              <h3 className="font-semibold mb-2">Dashboard nhanh</h3>
-              <div className="space-y-2 text-sm text-slate-300">
-                <div className="flex justify-between"><span>Phiên tư vấn tuần này</span><span>5</span></div>
-                <div className="flex justify-between"><span>Điểm cảm xúc trung bình</span><span>72/100</span></div>
-                <div className="flex justify-between"><span>Cảnh báo stress</span><span className="text-yellow-400">1</span></div>
-              </div>
-            </GradientCard>
-            <GradientCard>
-              <h3 className="font-semibold mb-2">Gợi ý tự chăm sóc</h3>
-              <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
-                <li>Thử bài tập thở 4-7-8 trong 2 phút.</li>
-                <li>Viết xuống 3 điều làm bạn vui hôm nay.</li>
-                <li>Chia sẻ với cố vấn nếu cảm thấy áp lực kéo dài.</li>
-              </ul>
-            </GradientCard>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Đăng nhập / Đăng ký tách theo vai trò, form tự động điền role đã chọn.</li>
+            <li>Quên mật khẩu qua MSSV + email, gửi link reset (mock).</li>
+            <li>Bảo mật JWT + hash mật khẩu, sẵn sàng nối API VNPT SmartBot/SmartVoice/SmartVision.</li>
+          </ul>
+          <div className="mt-3 flex gap-4 text-xs text-neon-cyan">
+            <Link href="/login">Đăng nhập</Link>
+            <Link href="/signup">Đăng ký</Link>
+            <Link href="/student">Xem giao diện học sinh</Link>
+            <Link href="/teacher">Xem dashboard giáo viên</Link>
           </div>
         </div>
       </div>
-      <ChatPopup onEmotionChange={(emo) => setEmotion(emo)} />
-      <FloatingMenu role={role || undefined} />
     </main>
   );
 }

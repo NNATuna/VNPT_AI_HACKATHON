@@ -28,10 +28,11 @@ model User {
   fullName     String
   dateOfBirth  DateTime
   email        String   @unique
-  parentEmail  String
-  advisorCode  String
+  parentEmail  String?
+  advisorCode  String?
   role         Role
   className    String?
+  department   String?
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -42,16 +43,16 @@ model User {
 }
 
 model SessionLog {
-  id            String        @id @default(uuid())
-  userId        String
-  timestamp     DateTime      @default(now())
-  source        SessionSource
-  userMessage   String?
-  botReply      String?
+  id             String        @id @default(uuid())
+  userId         String
+  timestamp      DateTime      @default(now())
+  source         SessionSource
+  userMessage    String?
+  botReply       String?
   sentimentScore Float
-  emotionLabel  String
-  faceEmotion   String?
-  meta          Json?
+  emotionLabel   String
+  faceEmotion    String?
+  meta           Json?
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -70,13 +71,13 @@ model DailyEmotionSummary {
 }
 
 model ParentReport {
-  id           String   @id @default(uuid())
-  userId       String
-  fromDate     DateTime
-  toDate       DateTime
-  sentAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  userId         String
+  fromDate       DateTime
+  toDate         DateTime
+  sentAt         DateTime @default(now())
   contentSummary String
-  emailStatus  ReportStatus
+  emailStatus    ReportStatus
 
   user User @relation(fields: [userId], references: [id])
 }

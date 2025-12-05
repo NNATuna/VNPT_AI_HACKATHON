@@ -3,10 +3,10 @@
 MVP web app hỗ trợ tâm lý, giám sát cảm xúc cho học sinh với chatbot/voice AI, phân tích cảm xúc đa modal, avatar 3D và dashboard giáo viên.
 
 ## Kiến trúc nhanh
-- **Frontend**: Next.js 14 (App Router) + TypeScript + TailwindCSS (theme sci-fi), React Three Fiber cho robot 3D.
+- **Frontend**: Next.js 14 (App Router) + TypeScript + TailwindCSS (theme sci-fi). Giao diện tách role: landing chọn vai trò → login/signup theo `role`, Student Home 1/3 chat – 2/3 robot 3D, Teacher Dashboard bảng + chart mock. React Three Fiber dựng avatar 3D static (không OrbitControls).
 - **Backend**: Next.js API routes, JWT auth, bcrypt hash mật khẩu, Prisma ORM (PostgreSQL mặc định).
 - **AI adapters (mock)**: `ChatbotService`, `EmotionService`, `EmailService` tách lớp để thay bằng VNPT SmartBot/SmartVoice/SmartVision, SMTP thật.
-- **Bảo mật**: Hash mật khẩu, JWT access/refresh, không lưu media gốc, chỉ metadata phiên tư vấn.
+- **Bảo mật**: Hash mật khẩu, JWT access/refresh, không lưu media gốc, chỉ metadata phiên tư vấn; phân quyền STUDENT/TEACHER qua token & menu.
 
 ## Cấu trúc thư mục chính
 ```
@@ -19,9 +19,11 @@ app/
     reports/send/ # gửi báo cáo phụ huynh (mock SMTP)
     teacher/students/ # dashboard giáo viên (mock data)
   teacher/       # màn hình quản lý học sinh
-  page.tsx       # màn hình chính robot 3D + chat + webcam
+  page.tsx       # landing chọn vai trò
+  student/       # bố cục 1/3 chat – 2/3 robot 3D + webcam + menu tải/gửi báo cáo
+  teacher/       # màn hình quản lý học sinh, tải dashboard
 components/
-  ChatPopup.tsx, FloatingMenu.tsx, WebcamEmotionPanel.tsx
+  StudentChatPanel.tsx, menus/StudentMenu|TeacherMenu, WebcamEmotionPanel.tsx
   robot/RobotScene.tsx
   ui/gradient-card.tsx
 lib/
