@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  STUDENT
-  TEACHER
-}
-
 enum SessionSource {
   CHAT
   VOICE
@@ -22,29 +17,44 @@ enum ReportStatus {
   FAILED
 }
 
-model User {
+model Student {
   id           String   @id @default(uuid())
   mssv         String   @unique
   fullName     String
   dateOfBirth  DateTime
   email        String   @unique
-  parentEmail  String?
+  parentEmail  String
   advisorCode  String?
-  role         Role
   className    String?
   department   String?
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sessions SessionLog[]
+  teacher   Teacher?              @relation("TeacherStudents", fields: [advisorCode], references: [mssv])
+  sessions  SessionLog[]
   summaries DailyEmotionSummary[]
-  reports  ParentReport[]
+  reports   ParentReport[]
+}
+
+model Teacher {
+  id           String   @id @default(uuid())
+  mssv         String   @unique
+  fullName     String
+  dateOfBirth  DateTime
+  email        String   @unique
+  department   String?
+  className    String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  students Student[] @relation("TeacherStudents")
 }
 
 model SessionLog {
   id             String        @id @default(uuid())
-  userId         String
+  studentId      String
   timestamp      DateTime      @default(now())
   source         SessionSource
   userMessage    String?
@@ -54,12 +64,12 @@ model SessionLog {
   faceEmotion    String?
   meta           Json?
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model DailyEmotionSummary {
   id               String   @id @default(uuid())
-  userId           String
+  studentId        String
   date             DateTime
   avgEmotionScore  Float
   positiveRatio    Float
@@ -67,17 +77,17 @@ model DailyEmotionSummary {
   stressAlertCount Int
   alertLevel       String
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model ParentReport {
   id             String   @id @default(uuid())
-  userId         String
+  studentId      String
   fromDate       DateTime
   toDate         DateTime
   sentAt         DateTime @default(now())
   contentSummary String
   emailStatus    ReportStatus
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }

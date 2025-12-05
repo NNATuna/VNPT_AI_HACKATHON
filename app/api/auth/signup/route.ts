@@ -30,24 +30,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Dữ liệu không hợp lệ" }, { status: 400 });
   }
   const data = parse.data;
-  const existed = await prisma.user.findUnique({ where: { mssv: data.mssv } });
-  if (existed) {
+  const existedStudent = await prisma.student.findUnique({ where: { mssv: data.mssv } });
+  const existedTeacher = await prisma.teacher.findUnique({ where: { mssv: data.mssv } });
+  if (existedStudent || existedTeacher) {
     return NextResponse.json({ error: "MSSV đã tồn tại" }, { status: 409 });
   }
   const passwordHash = await bcrypt.hash(data.password, 10);
-  await prisma.user.create({
-    data: {
-      mssv: data.mssv,
-      fullName: data.fullName,
-      dateOfBirth: new Date(data.dateOfBirth),
-      email: data.email,
-      parentEmail: data.parentEmail,
-      advisorCode: data.advisorCode,
-      department: data.department,
-      className: data.className,
-      role: data.role,
-      passwordHash,
-    },
-  });
+  if (data.role === "STUDENT") {
+    await prisma.student.create({
+      data: {
+        mssv: data.mssv,
+        fullName: data.fullName,
+        dateOfBirth: new Date(data.dateOfBirth),
+        email: data.email,
+        parentEmail: data.parentEmail!,
+        advisorCode: data.advisorCode,
+        className: data.className,
+        passwordHash,
+      },
+    });
+  } else {
+    await prisma.teacher.create({
+      data: {
+        mssv: data.mssv,
+        fullName: data.fullName,
+        dateOfBirth: new Date(data.dateOfBirth),
+        email: data.email,
+        department: data.department,
+        className: data.className,
+        passwordHash,
+      },
+    });
+  }
   return NextResponse.json({ message: "Đăng ký thành công" });
 }

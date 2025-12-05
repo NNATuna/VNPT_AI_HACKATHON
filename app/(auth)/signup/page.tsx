@@ -22,23 +22,51 @@ export default function SignupPage() {
   const router = useRouter();
   const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
   const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>({
-    mssv: "",
-    fullName: "",
-    dateOfBirth: "",
-    email: "",
-    parentEmail: "",
-    advisorCode: "",
-    className: "",
-    department: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [forms, setForms] = useState<{ STUDENT: FormState; TEACHER: FormState }>(
+    () => ({
+      STUDENT: {
+        mssv: "",
+        fullName: "",
+        dateOfBirth: "",
+        email: "",
+        parentEmail: "",
+        advisorCode: "",
+        className: "",
+        department: "",
+        password: "",
+        confirmPassword: "",
+      },
+      TEACHER: {
+        mssv: "",
+        fullName: "",
+        dateOfBirth: "",
+        email: "",
+        parentEmail: "",
+        advisorCode: "",
+        className: "",
+        department: "",
+        password: "",
+        confirmPassword: "",
+      },
+    })
+  );
 
   useEffect(() => {
     const paramRole = (params.get("role") as any) || (localStorage.getItem("role") as any);
     if (paramRole === "TEACHER") setRole("TEACHER");
   }, [params]);
+
+  const form = forms[role];
+
+  function updateField(key: keyof FormState, value: string) {
+    setForms((prev) => ({
+      ...prev,
+      [role]: {
+        ...prev[role],
+        [key]: value,
+      },
+    }));
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,32 +107,32 @@ export default function SignupPage() {
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={onSubmit}>
           <div>
             <label>MSSV</label>
-            <input value={form.mssv} onChange={(e) => setForm({ ...form, mssv: e.target.value })} required />
+            <input value={form.mssv} onChange={(e) => updateField("mssv", e.target.value)} required />
           </div>
           <div>
             <label>Họ tên</label>
-            <input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required />
+            <input value={form.fullName} onChange={(e) => updateField("fullName", e.target.value)} required />
           </div>
           <div>
             <label>Ngày sinh</label>
-            <input type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} required />
+            <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)} required />
           </div>
           <div>
             <label>Email</label>
-            <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            <input type="email" value={form.email} onChange={(e) => updateField("email", e.target.value)} required />
           </div>
           {role === "STUDENT" ? (
             <>
               <div>
                 <label>Mã GV quản lý</label>
-                <input value={form.advisorCode} onChange={(e) => setForm({ ...form, advisorCode: e.target.value })} required />
+                <input value={form.advisorCode} onChange={(e) => updateField("advisorCode", e.target.value)} required />
               </div>
               <div>
                 <label>Email phụ huynh</label>
                 <input
                   type="email"
                   value={form.parentEmail}
-                  onChange={(e) => setForm({ ...form, parentEmail: e.target.value })}
+                  onChange={(e) => updateField("parentEmail", e.target.value)}
                   required
                 />
               </div>
@@ -113,11 +141,11 @@ export default function SignupPage() {
             <>
               <div>
                 <label>Khoa/Bộ môn (tuỳ chọn)</label>
-                <input value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
+                <input value={form.department} onChange={(e) => updateField("department", e.target.value)} />
               </div>
               <div>
                 <label>Lớp/nhóm phụ trách</label>
-                <input value={form.className} onChange={(e) => setForm({ ...form, className: e.target.value })} />
+                <input value={form.className} onChange={(e) => updateField("className", e.target.value)} />
               </div>
             </>
           )}
@@ -126,7 +154,7 @@ export default function SignupPage() {
             <input
               type="password"
               value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onChange={(e) => updateField("password", e.target.value)}
               required
             />
           </div>
@@ -135,7 +163,7 @@ export default function SignupPage() {
             <input
               type="password"
               value={form.confirmPassword}
-              onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+              onChange={(e) => updateField("confirmPassword", e.target.value)}
               required
             />
           </div>
