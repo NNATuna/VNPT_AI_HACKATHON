@@ -1,18 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+  const params = useSearchParams();
   const [mssv, setMssv] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"STUDENT" | "TEACHER" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const paramRole = (params.get("role") as any) || (localStorage.getItem("role") as any);
+    if (paramRole === "TEACHER") setRole("TEACHER");
+    else if (paramRole === "STUDENT") setRole("STUDENT");
+    else router.replace("/");
+  }, [params, router]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!role) return;
     if (!mssv || !password) {
       setError("Vui lòng nhập đủ MSSV và mật khẩu");
       return;
@@ -20,7 +30,7 @@ export default function LoginPage() {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mssv, password }),
+      body: JSON.stringify({ mssv, password, role }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -30,17 +40,23 @@ export default function LoginPage() {
     localStorage.setItem("accessToken", data.accessToken);
     localStorage.setItem("refreshToken", data.refreshToken);
     localStorage.setItem("role", data.role);
-    router.push("/");
+    router.push(data.role === "TEACHER" ? "/teacher" : "/student");
   }
+
+  if (!role) return null;
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4">
-      <div className="glass-card rounded-2xl p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-2 text-glow">Đăng nhập</h1>
-        <p className="text-slate-400 mb-6">Nền tảng AI hỗ trợ tâm lý cho học sinh</p>
+      <div className="glass-card rounded-2xl p-8 max-w-md w-full space-y-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-neon-cyan">{role === "STUDENT" ? "Học sinh" : "Giáo viên"}</p>
+          <h1 className="text-2xl font-bold mb-2 text-glow">Đăng nhập</h1>
+          <p className="text-slate-400">AI chatbot, vision & báo cáo cảm xúc.</p>
+          <p className="text-[11px] text-slate-500 mt-1">Vai trò được chọn từ màn hình trước, quay lại trang chủ để đổi.</p>
+        </div>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
-            <label>Mã số sinh viên</label>
+            <label>{role === "TEACHER" ? "Mã GV / MSSV" : "Mã số sinh viên"}</label>
             <input value={mssv} onChange={(e) => setMssv(e.target.value)} placeholder="VD: SV001" className="w-full mt-1" />
           </div>
           <div>
@@ -58,11 +74,11 @@ export default function LoginPage() {
             Đăng nhập
           </button>
         </form>
-        <div className="flex items-center justify-between mt-4 text-sm text-slate-400">
-          <Link href="/signup" className="hover:text-white">
+        <div className="flex items-center justify-between mt-2 text-sm text-slate-400">
+          <Link href={`/signup?role=${role}`} className="hover:text-white">
             Đăng ký tài khoản mới
           </Link>
-          <Link href="/forgot-password" className="hover:text-white">
+          <Link href={`/forgot-password?role=${role}`} className="hover:text-white">
             Quên mật khẩu?
           </Link>
         </div>
