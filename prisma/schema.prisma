@@ -18,6 +18,7 @@ enum ReportStatus {
 }
 
 model Student {
+  /// Student accounts live in their own table to avoid role collisions with teachers.
   id           String   @id @default(uuid())
   mssv         String   @unique
   fullName     String
@@ -35,9 +36,12 @@ model Student {
   sessions  SessionLog[]
   summaries DailyEmotionSummary[]
   reports   ParentReport[]
+
+  @@map("students")
 }
 
 model Teacher {
+  /// Teacher accounts also use a dedicated table so auth and profile data remain isolated.
   id           String   @id @default(uuid())
   mssv         String   @unique
   fullName     String
@@ -50,6 +54,8 @@ model Teacher {
   updatedAt    DateTime @updatedAt
 
   students Student[] @relation("TeacherStudents")
+
+  @@map("teachers")
 }
 
 model SessionLog {

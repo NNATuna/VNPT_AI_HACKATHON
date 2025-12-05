@@ -4,7 +4,7 @@ MVP web app hỗ trợ tâm lý, giám sát cảm xúc cho học sinh với chat
 
 ## Kiến trúc nhanh
 - **Frontend**: Next.js 14 (App Router) + TypeScript + TailwindCSS (theme sci-fi). Giao diện tách role: landing chọn vai trò → login/signup theo `role`, Student Home 1/3 chat – 2/3 robot 3D, Teacher Dashboard bảng + chart mock. React Three Fiber dựng avatar 3D static (không OrbitControls).
-- **Backend**: Next.js API routes, JWT auth, bcrypt hash mật khẩu, Prisma ORM (PostgreSQL mặc định).
+- **Backend**: Next.js API routes, JWT auth, bcrypt hash mật khẩu, Prisma ORM (PostgreSQL mặc định) với hai bảng tách biệt `students` và `teachers` để tránh va chạm dữ liệu.
 - **AI adapters (mock)**: `ChatbotService`, `EmotionService`, `EmailService` tách lớp để thay bằng VNPT SmartBot/SmartVoice/SmartVision, SMTP thật.
 - **Bảo mật**: Hash mật khẩu, JWT access/refresh, không lưu media gốc, chỉ metadata phiên tư vấn; phân quyền STUDENT/TEACHER qua token & menu.
 
