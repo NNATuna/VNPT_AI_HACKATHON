@@ -3,16 +3,41 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
+const cleanOptional = (value?: string | null) => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+};
+
 const schema = z
   .object({
     mssv: z.string().min(3),
     fullName: z.string().min(3),
     dateOfBirth: z.string(),
     email: z.string().email(),
-    parentEmail: z.string().email().optional(),
-    advisorCode: z.string().optional(),
-    department: z.string().optional(),
-    className: z.string().optional(),
+    parentEmail: z
+      .string()
+      .trim()
+      .transform(cleanOptional)
+      .pipe(z.string().email().optional())
+      .optional(),
+    advisorCode: z
+      .string()
+      .trim()
+      .transform(cleanOptional)
+      .pipe(z.string().min(1).optional())
+      .optional(),
+    department: z
+      .string()
+      .trim()
+      .transform(cleanOptional)
+      .pipe(z.string().optional())
+      .optional(),
+    className: z
+      .string()
+      .trim()
+      .transform(cleanOptional)
+      .pipe(z.string().optional())
+      .optional(),
     role: z.enum(["STUDENT", "TEACHER"]),
     password: z.string().min(6),
   })
