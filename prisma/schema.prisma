@@ -26,6 +26,7 @@ model Student {
   parentEmail  String
   advisorCode  String?
   className    String?
+  department   String?
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
