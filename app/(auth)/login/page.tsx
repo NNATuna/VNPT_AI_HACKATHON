@@ -54,6 +54,7 @@ export default function LoginPage() {
           <p className="text-slate-400">AI chatbot, vision & báo cáo cảm xúc.</p>
           <p className="text-[11px] text-slate-500 mt-1">Vai trò được chọn từ màn hình trước, quay lại trang chủ để đổi.</p>
         </div>
+        <Link href="/" className="text-xs text-neon-cyan hover:text-white">Quay về menu chính</Link>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
             <label>{role === "TEACHER" ? "Mã GV / MSSV" : "Mã số sinh viên"}</label>

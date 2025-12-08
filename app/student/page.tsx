@@ -6,9 +6,11 @@ import { StudentChatPanel } from "@/components/StudentChatPanel";
 import { WebcamEmotionPanel } from "@/components/WebcamEmotionPanel";
 import { StudentMenu } from "@/components/menus/StudentMenu";
 import { Activity, Camera } from "lucide-react";
+import { VoiceMicControl } from "@/components/VoiceMicControl";
 
 export default function StudentHome() {
   const [emotion, setEmotion] = useState("neutral");
+  const [voiceState, setVoiceState] = useState<"idle" | "listening" | "processing" | "speaking">("idle");
 
   useEffect(() => {
     localStorage.setItem("role", "STUDENT");
@@ -40,11 +42,17 @@ export default function StudentHome() {
               <div className="bg-gradient-to-br from-slate-900/60 to-slate-800/60 rounded-xl h-[520px] relative overflow-hidden">
                 <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.15),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(124,58,237,0.15),transparent_25%)]" />
                 <div className="absolute inset-0 z-10">
-                  <RobotScene expression={emotion} />
+                  <RobotScene expression={emotion} voiceState={voiceState} />
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-4 right-4 z-20">
+            <div className="absolute bottom-4 right-6 left-6 z-20 flex flex-wrap justify-center gap-4">
+              <VoiceMicControl
+                onVoiceStateChange={(state) => setVoiceState(state)}
+                onVoiceResponse={(data) => {
+                  if (data.emotionLabel) setEmotion(data.emotionLabel);
+                }}
+              />
               <div className="flex items-end gap-3">
                 <div className="glass-card p-3 rounded-xl border border-slate-800 text-sm text-slate-300 flex items-center gap-2">
                   <Camera size={16} />

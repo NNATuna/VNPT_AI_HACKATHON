@@ -108,6 +108,9 @@ export default function SignupPage() {
             <h1 className="text-2xl font-bold text-glow">Tạo tài khoản</h1>
             <p className="text-[11px] text-slate-500 mt-1">Vai trò cố định từ màn hình chọn ban đầu. Quay lại trang chủ để đổi.</p>
           </div>
+          <Link href="/" className="text-xs text-neon-cyan hover:text-white">
+            Quay về menu chính
+          </Link>
         </div>
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={onSubmit}>
           <div>
