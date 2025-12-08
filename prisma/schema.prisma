@@ -7,11 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  STUDENT
-  TEACHER
-}
-
 enum SessionSource {
   CHAT
   VOICE
@@ -22,43 +17,64 @@ enum ReportStatus {
   FAILED
 }
 
-model User {
+model Student {
+  /// Student accounts live in their own table to avoid role collisions with teachers.
   id           String   @id @default(uuid())
   mssv         String   @unique
   fullName     String
   dateOfBirth  DateTime
   email        String   @unique
   parentEmail  String
-  advisorCode  String
-  role         Role
+  advisorCode  String?
   className    String?
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sessions SessionLog[]
+  teacher   Teacher?              @relation("TeacherStudents", fields: [advisorCode], references: [mssv])
+  sessions  SessionLog[]
   summaries DailyEmotionSummary[]
-  reports  ParentReport[]
+  reports   ParentReport[]
+
+  @@map("students")
+}
+
+model Teacher {
+  /// Teacher accounts also use a dedicated table so auth and profile data remain isolated.
+  id           String   @id @default(uuid())
+  mssv         String   @unique
+  fullName     String
+  dateOfBirth  DateTime
+  email        String   @unique
+  department   String?
+  className    String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  students Student[] @relation("TeacherStudents")
+
+  @@map("teachers")
 }
 
 model SessionLog {
-  id            String        @id @default(uuid())
-  userId        String
-  timestamp     DateTime      @default(now())
-  source        SessionSource
-  userMessage   String?
-  botReply      String?
+  id             String        @id @default(uuid())
+  studentId      String
+  timestamp      DateTime      @default(now())
+  source         SessionSource
+  userMessage    String?
+  botReply       String?
   sentimentScore Float
-  emotionLabel  String
-  faceEmotion   String?
-  meta          Json?
+  emotionLabel   String
+  faceEmotion    String?
+  meta           Json?
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model DailyEmotionSummary {
   id               String   @id @default(uuid())
-  userId           String
+  studentId        String
   date             DateTime
   avgEmotionScore  Float
   positiveRatio    Float
@@ -66,17 +82,17 @@ model DailyEmotionSummary {
   stressAlertCount Int
   alertLevel       String
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model ParentReport {
-  id           String   @id @default(uuid())
-  userId       String
-  fromDate     DateTime
-  toDate       DateTime
-  sentAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  studentId      String
+  fromDate       DateTime
+  toDate         DateTime
+  sentAt         DateTime @default(now())
   contentSummary String
-  emailStatus  ReportStatus
+  emailStatus    ReportStatus
 
-  user User @relation(fields: [userId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { GradientCard } from "@/components/ui/gradient-card";
 import { formatDate } from "@/lib/utils";
-import { AlertTriangle, Users } from "lucide-react";
+import { AlertTriangle, Users, BarChart3 } from "lucide-react";
+import { TeacherMenu } from "@/components/menus/TeacherMenu";
 
 type Student = {
   mssv: string;
@@ -25,27 +26,47 @@ export default function TeacherDashboard() {
   const [filter, setFilter] = useState({ keyword: "", alert: "" });
 
   useEffect(() => {
+    localStorage.setItem("role", "TEACHER");
     fetch("/api/teacher/students")
       .then((r) => r.json())
       .then((data) => setStudents(data.students));
   }, []);
 
   const filtered = students.filter((s) => {
-    const matchKeyword = s.fullName.toLowerCase().includes(filter.keyword.toLowerCase()) ||
-      s.mssv.toLowerCase().includes(filter.keyword.toLowerCase());
+    const matchKeyword =
+      s.fullName.toLowerCase().includes(filter.keyword.toLowerCase()) || s.mssv.toLowerCase().includes(filter.keyword.toLowerCase());
     const matchAlert = filter.alert ? s.alertLevel === filter.alert : true;
     return matchKeyword && matchAlert;
   });
 
   return (
     <main className="container mx-auto px-4 py-8 space-y-4">
-      <div className="flex items-center gap-3">
-        <Users />
-        <div>
-          <h1 className="text-2xl font-bold">Quản lý học sinh</h1>
-          <p className="text-slate-400">Theo dõi cảm xúc và cảnh báo</p>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <Users />
+          <div>
+            <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
+            <p className="text-slate-400">Theo dõi cảm xúc học sinh do bạn quản lý</p>
+          </div>
         </div>
+        <TeacherMenu onLogout={() => (window.location.href = "/login?role=TEACHER") } />
       </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        <GradientCard>
+          <p className="text-sm text-slate-400">Tổng số học sinh</p>
+          <p className="text-3xl font-bold">{students.length || "--"}</p>
+        </GradientCard>
+        <GradientCard>
+          <p className="text-sm text-slate-400">Cảnh báo cao tuần này</p>
+          <p className="text-3xl font-bold text-yellow-300">{students.filter((s) => s.alertLevel === "Nguy cơ cao").length}</p>
+        </GradientCard>
+        <GradientCard>
+          <p className="text-sm text-slate-400">Phiên trung bình / HS</p>
+          <p className="text-3xl font-bold">{students.length ? (students.reduce((a, b) => a + b.sessionsLast7Days, 0) / students.length).toFixed(1) : "--"}</p>
+        </GradientCard>
+      </div>
+
       <GradientCard>
         <div className="flex flex-col md:flex-row gap-3 mb-4">
           <input
@@ -113,6 +134,18 @@ export default function TeacherDashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+      </GradientCard>
+
+      <GradientCard>
+        <div className="flex items-center gap-2 mb-2 text-sm text-slate-400">
+          <BarChart3 size={16} />
+          Tóm tắt mock: tỉ lệ positive/neutral/negative sẽ được thay bằng chart khi tích hợp.
+        </div>
+        <div className="grid md:grid-cols-3 gap-3 text-sm">
+          <div className="glass-card p-3 rounded-xl border border-slate-800">Positive: 48%</div>
+          <div className="glass-card p-3 rounded-xl border border-slate-800">Neutral: 32%</div>
+          <div className="glass-card p-3 rounded-xl border border-slate-800">Negative/Stress: 20%</div>
         </div>
       </GradientCard>
     </main>
